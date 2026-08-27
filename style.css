@@ -8,19 +8,52 @@
   --chemistry:#3f8f6d;
   --math:#a5673b;
   --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --toggle-bg:#efefec;
 }
+
+html[data-theme="dark"]{
+  --bg:#0f0f0e;
+  --card:#1a1a19;
+  --border:#2c2c2a;
+  --text:#f0f0ee;
+  --muted:#8f8f8a;
+  --physics:#6ea3e0;
+  --chemistry:#6fc79b;
+  --math:#e0a06e;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.24);
+  --toggle-bg:#242422;
+}
+
 *{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%;}
 body{
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background:var(--bg);
   color:var(--text);
   min-height:100vh;
   padding:32px 16px 60px;
+  transition:background .2s ease, color .2s ease;
 }
 .wrap{max-width:640px; margin:0 auto;}
+
 header{margin-bottom:28px;}
+.header-row{display:flex; justify-content:space-between; align-items:flex-start; gap:12px;}
 h1{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
 .sub{color:var(--muted); font-size:13px; margin-top:4px;}
+
+.theme-toggle{
+  flex-shrink:0;
+  width:38px; height:38px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--toggle-bg);
+  color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:opacity .15s ease, transform .1s ease;
+}
+.theme-toggle:active{transform:scale(0.94);}
+
 .cards{display:flex; flex-direction:column; gap:12px;}
 .card{
   background:var(--card);
@@ -28,16 +61,17 @@ h1{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
   border-radius:14px;
   padding:20px;
   box-shadow:var(--shadow);
+  transition:background .2s ease, border-color .2s ease;
 }
 .card-top{display:flex; justify-content:space-between; align-items:center;}
 .subject{display:flex; align-items:center; gap:10px;}
-.dot{width:9px; height:9px; border-radius:50%;}
+.dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
 .physics .dot{background:var(--physics);}
 .chemistry .dot{background:var(--chemistry);}
 .math .dot{background:var(--math);}
 .subject-name{font-size:15px; font-weight:600;}
 .total{font-size:12px; color:var(--muted);}
-.timer-row{display:flex; align-items:baseline; justify-content:space-between; margin-top:16px;}
+.timer-row{display:flex; align-items:baseline; justify-content:space-between; margin-top:16px; gap:10px; flex-wrap:wrap;}
 .time{font-size:34px; font-variant-numeric:tabular-nums; font-weight:600; letter-spacing:-0.02em;}
 .btns{display:flex; gap:8px;}
 button{
@@ -48,16 +82,18 @@ button{
   font-weight:600;
   cursor:pointer;
   transition:opacity .15s ease, transform .1s ease;
+  font-family:inherit;
 }
 button:active{transform:scale(0.97);}
-.start{background:var(--text); color:#fff;}
-.pause{background:#efefec; color:var(--text);}
+.start{background:var(--text); color:var(--bg);}
+.pause{background:var(--toggle-bg); color:var(--text);}
 .reset{background:transparent; color:var(--muted); padding:9px 10px;}
 .reset:hover{color:#b3413b;}
+
 .physics.running .card{box-shadow: 0 0 0 1.5px var(--physics), var(--shadow); border-color:transparent;}
 .chemistry.running .card{box-shadow: 0 0 0 1.5px var(--chemistry), var(--shadow); border-color:transparent;}
 .math.running .card{box-shadow: 0 0 0 1.5px var(--math), var(--shadow); border-color:transparent;}
-footer{margin-top:28px; text-align:center; color:var(--muted); font-size:12px;}
+
 .grand{
   margin-top:20px;
   background:var(--card);
@@ -69,5 +105,26 @@ footer{margin-top:28px; text-align:center; color:var(--muted); font-size:12px;}
 }
 .grand .label{font-size:13px; color:var(--muted); font-weight:600;}
 .grand .val{font-size:18px; font-weight:700; font-variant-numeric:tabular-nums;}
+
 .save-note{font-size:11px; color:var(--muted); text-align:center; margin-top:10px; opacity:0; transition:opacity .3s ease;}
 .save-note.show{opacity:1;}
+
+footer{margin-top:28px; text-align:center;}
+.brand-link{display:inline-flex; opacity:0.85; transition:opacity .15s ease, transform .1s ease;}
+.brand-link:hover{opacity:1;}
+.brand-link:active{transform:scale(0.95);}
+.brand-logo{width:34px; height:34px; border-radius:8px; display:block;}
+.footer-text{color:var(--muted); font-size:12px; margin-top:10px;}
+
+/* Mobile */
+@media (max-width: 480px){
+  body{padding:20px 12px 48px;}
+  h1{font-size:19px;}
+  .time{font-size:28px;}
+  .card{padding:16px;}
+  .timer-row{flex-direction:column; align-items:stretch;}
+  .btns{justify-content:space-between;}
+  button{flex:1;}
+  .reset{flex:0 0 auto;}
+  .grand{padding:14px 16px; flex-direction:column; align-items:flex-start; gap:4px;}
+}

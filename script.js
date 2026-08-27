@@ -148,3 +148,39 @@ cardsEl.addEventListener('click', (e) => {
 setInterval(render, 1000);
 
 loadAll();
+
+// ---- Theme toggle ----
+const THEME_KEY = 'jee-tracker-theme';
+const themeToggleBtn = document.getElementById('themeToggle');
+const iconMoon = document.getElementById('iconMoon');
+const iconSun = document.getElementById('iconSun');
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  if(theme === 'dark'){
+    iconMoon.style.display = 'none';
+    iconSun.style.display = 'block';
+  } else {
+    iconMoon.style.display = 'block';
+    iconSun.style.display = 'none';
+  }
+}
+
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY);
+  if(saved){
+    applyTheme(saved);
+  } else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+}
+
+themeToggleBtn.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+});
+
+initTheme();

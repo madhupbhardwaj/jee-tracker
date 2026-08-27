@@ -2,15 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>JEE Tracker</title>
+<link rel="icon" href="logo.png" type="image/png">
 <link rel="stylesheet" href="style.css">
+<script>
+  (function(){
+    var saved = localStorage.getItem('jee-tracker-theme');
+    var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>JEE Study Tracker</h1>
-    <div class="sub">Time is saved automatically in your browser and persists across sessions.</div>
+    <div class="header-row">
+      <div>
+        <h1>JEE Study Tracker</h1>
+        <div class="sub">Time is saved automatically in your browser and persists across sessions.</div>
+      </div>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+        <svg id="iconMoon" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg id="iconSun" viewBox="0 0 24 24" width="18" height="18" style="display:none"><path fill="currentColor" d="M12 4.5a1 1 0 011 1V7a1 1 0 11-2 0V5.5a1 1 0 011-1zm0 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zm0 2.5a1 1 0 011 1V20.5a1 1 0 11-2 0V19a1 1 0 011-1zm7.5-6.5a1 1 0 01-1 1H17a1 1 0 110-2h1.5a1 1 0 011 1zM7 12a1 1 0 01-1 1H4.5a1 1 0 110-2H6a1 1 0 011 1zm9.02-5.02a1 1 0 011.41 0l1.06 1.06a1 1 0 11-1.41 1.42l-1.06-1.06a1 1 0 010-1.42zM5.51 17.45a1 1 0 011.41 0l1.06 1.06a1 1 0 11-1.41 1.41L5.5 18.86a1 1 0 01.01-1.41zm12.98 0a1 1 0 010 1.41l-1.06 1.06a1 1 0 11-1.42-1.41l1.06-1.06a1 1 0 011.42 0zM6.92 6.98a1 1 0 010 1.42L5.86 9.46A1 1 0 114.45 8.04l1.06-1.06a1 1 0 011.41 0z"/></svg>
+      </button>
+    </div>
   </header>
 
   <div class="cards" id="cards"></div>
@@ -21,7 +37,12 @@
   </div>
   <div class="save-note" id="saveNote">Saved</div>
 
-  <footer>Data is stored locally on this device. Clearing browser data will erase it.</footer>
+  <footer>
+    <a href="https://problemset.in" target="_blank" rel="noopener noreferrer" class="brand-link" title="problemset.in">
+      <img src="logo.png" alt="Problemset logo" class="brand-logo">
+    </a>
+    <div class="footer-text">Data is stored locally on this device. Clearing browser data will erase it.</div>
+  </footer>
 </div>
 
 <script src="script.js"></script>

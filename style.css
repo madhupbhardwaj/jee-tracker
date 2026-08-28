@@ -62,6 +62,15 @@ h1{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
   flex-shrink:0;
   overflow:visible;
   color:var(--text);
+}
+.theme-toggle svg circle{
+  fill:var(--text);
+}
+.theme-toggle svg line{
+  fill:none;
+  stroke:var(--text);
+}
+.theme-toggle svg path{
   fill:var(--text);
   stroke:none;
 }

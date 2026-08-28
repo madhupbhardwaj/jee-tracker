@@ -42,6 +42,8 @@ h1{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
 .sub{color:var(--muted); font-size:13px; margin-top:4px;}
 
 .theme-toggle{
+  -webkit-appearance:none;
+  appearance:none;
   flex-shrink:0;
   width:40px; height:40px;
   border-radius:10px;
@@ -51,15 +53,21 @@ h1{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
   transition:opacity .15s ease, transform .1s ease, background .15s ease;
+  outline:none;
 }
 .theme-toggle svg{
   width:19px; height:19px;
+  min-width:19px; min-height:19px;
   display:block;
+  flex-shrink:0;
+  overflow:visible;
   color:var(--text);
   fill:var(--text);
+  stroke:none;
 }
 .theme-toggle:hover{background:var(--border);}
 .theme-toggle:active{transform:scale(0.94);}
+.theme-toggle:focus-visible{outline:2px solid var(--text); outline-offset:2px;}
 
 .cards{display:flex; flex-direction:column; gap:12px;}
 .card{

@@ -440,6 +440,12 @@ button:active{transform:scale(0.97);}
   cursor:pointer;
 }
 .chat-send-btn:disabled{opacity:0.5; cursor:not-allowed;}
+.chat-note{
+  font-size:11px;
+  color:var(--muted);
+  text-align:center;
+  margin-top:8px;
+}
 
 footer{margin-top:28px; text-align:center;}
 .brand-link{display:inline-flex; opacity:0.85; transition:opacity .15s ease, transform .1s ease;}

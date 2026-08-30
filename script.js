@@ -483,6 +483,10 @@ window.addEventListener('cloud-unconfigured', () => {
   cloudSyncBtn.title = 'Cloud sync not set up yet';
 });
 
+window.addEventListener('cloud-not-allowed', (e) => {
+  alert(`This tracker is invite-only. ${e.detail.email} isn't on the allowed list.`);
+});
+
 // ---- Leaderboard ----
 const leaderboardListEl = document.getElementById('leaderboardList');
 const leaderboardSubEl = document.getElementById('leaderboardSub');
@@ -525,15 +529,39 @@ const chatMessagesEl = document.getElementById('chatMessages');
 const chatInputEl = document.getElementById('chatInput');
 const chatSendBtnEl = document.getElementById('chatSendBtn');
 
+function chatDateLabel(ts){
+  const d = new Date(ts);
+  const today = new Date();
+  const y = new Date(); y.setDate(today.getDate()-1);
+  const sameDay = (a,b) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  if(sameDay(d, today)) return 'Today';
+  if(sameDay(d, y)) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+}
+
+function chatTimeLabel(ts){
+  return new Date(ts).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+}
+
 function renderMessages(msgs){
   const myUid = window.CloudSync && window.CloudSync.currentUser ? window.CloudSync.currentUser.uid : null;
-  const wasAtBottom = chatMessagesEl.scrollTop + chatMessagesEl.clientHeight >= chatMessagesEl.scrollHeight - 30;
   chatMessagesEl.innerHTML = '';
   if(msgs.length === 0){
     chatMessagesEl.innerHTML = `<div class="chat-empty">No messages yet. Say hi!</div>`;
     return;
   }
+  let lastDateLabel = null;
   msgs.forEach(m => {
+    const ts = m.localTime || Date.now();
+    const dateLabel = chatDateLabel(ts);
+    if(dateLabel !== lastDateLabel){
+      const divider = document.createElement('div');
+      divider.className = 'chat-date-divider';
+      divider.innerHTML = `<span>${dateLabel}</span>`;
+      chatMessagesEl.appendChild(divider);
+      lastDateLabel = dateLabel;
+    }
+
     const own = m.uid === myUid;
     const el = document.createElement('div');
     el.className = 'chat-msg' + (own ? ' own' : '');
@@ -545,6 +573,7 @@ function renderMessages(msgs){
       <div class="chat-msg-body">
         <div class="chat-msg-name">${own ? 'You' : escapeHtml(m.name || 'Anonymous')}</div>
         <span class="chat-msg-text">${escapeHtml(m.text || '')}</span>
+        <div class="chat-msg-time">${chatTimeLabel(ts)}</div>
       </div>
     `;
     chatMessagesEl.appendChild(el);

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, setDoc, onSnapshot,
@@ -31,8 +31,13 @@ window.CloudSync = {
       alert("Cloud sync isn't set up yet. Add your Firebase keys to firebase-config.js first.");
       return;
     }
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     try {
-      await signInWithPopup(auth, provider);
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
     } catch (e) {
       console.error("Sign-in failed", e);
       alert("Sign-in failed: " + e.message);
@@ -116,6 +121,10 @@ window.CloudSync = {
 };
 
 if (configured) {
+  getRedirectResult(auth).catch((e) => {
+    console.error("Redirect sign-in failed", e);
+  });
+
   onAuthStateChanged(auth, (user) => {
     window.CloudSync.currentUser = user;
     window.dispatchEvent(new CustomEvent("cloud-auth-changed", { detail: { user } }));

@@ -184,3 +184,148 @@ themeToggleBtn.addEventListener('click', () => {
 });
 
 initTheme();
+
+// ---- To-Do List ----
+const TODO_KEY = 'jee-tracker-todos';
+const datePicker = document.getElementById('datePicker');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const todoDaysEl = document.getElementById('todoDays');
+
+// todos structure: { "YYYY-MM-DD": [ { id, text, done }, ... ], ... }
+let todos = {};
+
+function loadTodos(){
+  try{
+    const raw = localStorage.getItem(TODO_KEY);
+    todos = raw ? JSON.parse(raw) : {};
+  }catch(e){
+    todos = {};
+  }
+}
+
+function saveTodos(){
+  try{
+    localStorage.setItem(TODO_KEY, JSON.stringify(todos));
+    flashSaved();
+  }catch(e){
+    console.error('todo save failed', e);
+  }
+}
+
+function todayISO(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60000);
+  return local.toISOString().slice(0,10);
+}
+
+function formatDateLabel(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dateObj = new Date(y, m-1, d);
+  const today = new Date();
+  const todayIso = todayISO();
+  const opts = { weekday:'short', month:'short', day:'numeric' };
+  let label = dateObj.toLocaleDateString(undefined, opts);
+  if(iso === todayIso) label += ' - Today';
+  return label;
+}
+
+function addTask(dateIso, text){
+  if(!todos[dateIso]) todos[dateIso] = [];
+  todos[dateIso].push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    text: text,
+    done: false
+  });
+  saveTodos();
+  renderTodos();
+}
+
+function toggleTask(dateIso, id){
+  const list = todos[dateIso];
+  if(!list) return;
+  const item = list.find(t => t.id === id);
+  if(item){
+    item.done = !item.done;
+    saveTodos();
+    renderTodos();
+  }
+}
+
+function deleteTask(dateIso, id){
+  const list = todos[dateIso];
+  if(!list) return;
+  todos[dateIso] = list.filter(t => t.id !== id);
+  if(todos[dateIso].length === 0) delete todos[dateIso];
+  saveTodos();
+  renderTodos();
+}
+
+function renderTodos(){
+  const dates = Object.keys(todos).sort();
+  todoDaysEl.innerHTML = '';
+
+  if(dates.length === 0){
+    todoDaysEl.innerHTML = `<div class="todo-empty">No tasks yet. Pick a date above and tap + to add one.</div>`;
+    return;
+  }
+
+  dates.forEach(dateIso => {
+    const tasks = todos[dateIso];
+    const doneCount = tasks.filter(t => t.done).length;
+
+    const dayEl = document.createElement('div');
+    dayEl.className = 'todo-day';
+    dayEl.innerHTML = `
+      <div class="todo-day-header">
+        <span class="todo-day-title">${formatDateLabel(dateIso)}</span>
+        <span class="todo-day-count">${doneCount}/${tasks.length} done</span>
+      </div>
+      <div class="todo-list"></div>
+    `;
+    const listEl = dayEl.querySelector('.todo-list');
+
+    tasks.forEach(task => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'todo-item';
+      itemEl.innerHTML = `
+        <button class="todo-checkbox ${task.done ? 'checked' : ''}" data-date="${dateIso}" data-id="${task.id}" data-action="toggle"></button>
+        <span class="todo-text ${task.done ? 'done' : ''}">${escapeHtml(task.text)}</span>
+        <button class="todo-delete" data-date="${dateIso}" data-id="${task.id}" data-action="delete">&times;</button>
+      `;
+      listEl.appendChild(itemEl);
+    });
+
+    todoDaysEl.appendChild(dayEl);
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+addTaskBtn.addEventListener('click', () => {
+  const dateIso = datePicker.value;
+  if(!dateIso){
+    alert('Please pick a date first.');
+    return;
+  }
+  const text = prompt('Enter task:');
+  if(text && text.trim()){
+    addTask(dateIso, text.trim());
+  }
+});
+
+todoDaysEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const { action, date, id } = btn.dataset;
+  if(action === 'toggle') toggleTask(date, id);
+  else if(action === 'delete') deleteTask(date, id);
+});
+
+datePicker.value = todayISO();
+loadTodos();
+renderTodos();

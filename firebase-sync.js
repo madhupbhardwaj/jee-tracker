@@ -126,6 +126,16 @@ window.CloudSync = {
     this.cleanupOldMessages();
   },
 
+  async deleteMessage(msgId) {
+    if (!configured || !this.currentUser) return;
+    try {
+      await deleteDoc(doc(db, "groupMessages", msgId));
+    } catch (e) {
+      console.error("Delete message failed", e);
+      alert("Couldn't delete message: " + e.message);
+    }
+  },
+
   // Best-effort: whoever has the app open deletes messages older than 48h.
   async cleanupOldMessages() {
     if (!configured || !this.currentUser) return;

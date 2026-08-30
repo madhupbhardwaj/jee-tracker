@@ -394,6 +394,18 @@ button:active{transform:scale(0.97);}
   color:var(--muted);
   margin-top:3px;
 }
+.chat-msg-delete{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  font-size:15px;
+  cursor:pointer;
+  padding:2px 6px;
+  line-height:1;
+  flex-shrink:0;
+  align-self:flex-start;
+}
+.chat-msg-delete:hover{color:#b3413b;}
 .chat-date-divider{
   display:flex;
   align-items:center;

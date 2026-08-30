@@ -389,6 +389,25 @@ button:active{transform:scale(0.97);}
   word-break:break-word;
   max-width:100%;
 }
+.chat-msg-time{
+  font-size:10px;
+  color:var(--muted);
+  margin-top:3px;
+}
+.chat-date-divider{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:6px 0;
+}
+.chat-date-divider span{
+  font-size:11px;
+  color:var(--muted);
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:3px 12px;
+}
 .chat-msg.own .chat-msg-text{background:var(--text); color:var(--bg);}
 .chat-msg.own{flex-direction:row-reverse;}
 .chat-msg.own .chat-msg-body{text-align:right;}

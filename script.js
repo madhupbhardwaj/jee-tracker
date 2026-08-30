@@ -483,10 +483,6 @@ window.addEventListener('cloud-unconfigured', () => {
   cloudSyncBtn.title = 'Cloud sync not set up yet';
 });
 
-window.addEventListener('cloud-not-allowed', (e) => {
-  alert(`This tracker is invite-only. ${e.detail.email} isn't on the allowed list.`);
-});
-
 // ---- Leaderboard ----
 const leaderboardListEl = document.getElementById('leaderboardList');
 const leaderboardSubEl = document.getElementById('leaderboardSub');

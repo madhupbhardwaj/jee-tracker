@@ -1,3 +1,6 @@
+// Your Google sign-in email. This account can delete any message in Group Chat.
+const ADMIN_EMAIL = "geekycoder2010@gmail.com";
+
 const SUBJECTS = [
   { id: 'physics', name: 'Physics' },
   { id: 'chemistry', name: 'Chemistry' },
@@ -541,6 +544,8 @@ function chatTimeLabel(ts){
 
 function renderMessages(msgs){
   const myUid = window.CloudSync && window.CloudSync.currentUser ? window.CloudSync.currentUser.uid : null;
+  const myEmail = window.CloudSync && window.CloudSync.currentUser ? window.CloudSync.currentUser.email : null;
+  const isAdmin = myEmail === ADMIN_EMAIL;
   chatMessagesEl.innerHTML = '';
   if(msgs.length === 0){
     chatMessagesEl.innerHTML = `<div class="chat-empty">No messages yet. Say hi!</div>`;
@@ -571,6 +576,7 @@ function renderMessages(msgs){
         <span class="chat-msg-text">${escapeHtml(m.text || '')}</span>
         <div class="chat-msg-time">${chatTimeLabel(ts)}</div>
       </div>
+      ${isAdmin ? `<button class="chat-msg-delete" data-id="${m.id}" title="Delete message">&times;</button>` : ''}
     `;
     chatMessagesEl.appendChild(el);
   });
@@ -587,6 +593,14 @@ function sendChatMessage(){
 chatSendBtnEl.addEventListener('click', sendChatMessage);
 chatInputEl.addEventListener('keydown', (e) => {
   if(e.key === 'Enter') sendChatMessage();
+});
+
+chatMessagesEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.chat-msg-delete');
+  if(!btn) return;
+  if(confirm('Delete this message for everyone?')){
+    window.CloudSync && window.CloudSync.deleteMessage(btn.dataset.id);
+  }
 });
 
 // Enable/disable group features based on sign-in state

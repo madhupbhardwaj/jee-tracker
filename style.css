@@ -133,6 +133,113 @@ button:active{transform:scale(0.97);}
 .save-note{font-size:11px; color:var(--muted); text-align:center; margin-top:10px; opacity:0; transition:opacity .3s ease;}
 .save-note.show{opacity:1;}
 
+/* To-Do List */
+.todo-section{margin-top:28px;}
+.todo-header{margin-bottom:12px;}
+.todo-header h2{font-size:17px; font-weight:600; letter-spacing:-0.01em;}
+
+.date-picker-row{display:flex; gap:8px; margin-bottom:14px;}
+.date-picker{
+  flex:1;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  font-family:inherit;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.date-picker:focus{outline:none; border-color:var(--muted);}
+.add-task-btn{
+  -webkit-appearance:none;
+  appearance:none;
+  width:44px; height:44px;
+  flex-shrink:0;
+  border:none;
+  border-radius:10px;
+  background:var(--text);
+  color:var(--bg);
+  font-size:22px;
+  font-weight:600;
+  line-height:1;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .1s ease, opacity .15s ease;
+}
+.add-task-btn:active{transform:scale(0.94);}
+
+.todo-days{display:flex; flex-direction:column; gap:12px;}
+.todo-day{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.todo-day-header{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:10px;
+}
+.todo-day-title{font-size:14px; font-weight:600;}
+.todo-day-count{font-size:11px; color:var(--muted);}
+.todo-list{display:flex; flex-direction:column; gap:8px;}
+.todo-item{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+.todo-item:last-child{border-bottom:none; padding-bottom:0;}
+.todo-checkbox{
+  width:18px; height:18px;
+  flex-shrink:0;
+  border-radius:5px;
+  border:1.5px solid var(--muted);
+  background:transparent;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.todo-checkbox.checked{
+  background:var(--text);
+  border-color:var(--text);
+}
+.todo-checkbox.checked::after{
+  content:'';
+  width:5px; height:9px;
+  border:solid var(--bg);
+  border-width:0 2px 2px 0;
+  transform:rotate(45deg) translate(-1px,-1px);
+}
+.todo-text{
+  flex:1;
+  font-size:14px;
+  word-break:break-word;
+}
+.todo-text.done{
+  text-decoration:line-through;
+  color:var(--muted);
+}
+.todo-delete{
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  font-size:16px;
+  cursor:pointer;
+  padding:4px 6px;
+  line-height:1;
+  flex-shrink:0;
+}
+.todo-delete:hover{color:#b3413b;}
+.todo-empty{
+  color:var(--muted);
+  font-size:13px;
+  text-align:center;
+  padding:20px 0;
+}
+
 footer{margin-top:28px; text-align:center;}
 .brand-link{display:inline-flex; opacity:0.85; transition:opacity .15s ease, transform .1s ease;}
 .brand-link:hover{opacity:1;}

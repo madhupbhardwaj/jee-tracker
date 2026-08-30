@@ -81,6 +81,7 @@ function persist(id){
       startedAt: state[id].startedAt
     }));
     flashSaved();
+    pushToCloud();
   }catch(e){
     console.error('save failed', e);
   }
@@ -212,6 +213,7 @@ function saveTodos(){
   try{
     localStorage.setItem(TODO_KEY, JSON.stringify(todos));
     flashSaved();
+    pushToCloud();
   }catch(e){
     console.error('todo save failed', e);
   }
@@ -404,3 +406,187 @@ buildDateStrip();
 selectedDateLabel.textContent = formatShortLabel(selectedDate);
 loadTodos();
 renderTodos();
+
+// ---- Cloud Sync (Firebase) ----
+const cloudSyncBtn = document.getElementById('cloudSyncBtn');
+const cloudSyncLabel = document.getElementById('cloudSyncLabel');
+
+let pushTimeout = null;
+function pushToCloud(){
+  if(!window.CloudSync || !window.CloudSync.currentUser) return;
+  clearTimeout(pushTimeout);
+  pushTimeout = setTimeout(() => {
+    window.CloudSync.saveData({ timers: state, todos: todos });
+    window.CloudSync.saveLeaderboardEntry({
+      physics: currentSeconds(SUBJECTS[0]),
+      chemistry: currentSeconds(SUBJECTS[1]),
+      math: currentSeconds(SUBJECTS[2])
+    });
+  }, 600);
+}
+
+function applyCloudData(data){
+  let changed = false;
+  if(data.timers){
+    SUBJECTS.forEach(sub => {
+      if(data.timers[sub.id]){
+        state[sub.id] = {
+          accumulated: data.timers[sub.id].accumulated || 0,
+          running: !!data.timers[sub.id].running,
+          startedAt: data.timers[sub.id].startedAt || null
+        };
+        localStorage.setItem(STORAGE_PREFIX + sub.id, JSON.stringify(state[sub.id]));
+        changed = true;
+      }
+    });
+  }
+  if(data.todos){
+    todos = data.todos;
+    localStorage.setItem(TODO_KEY, JSON.stringify(todos));
+    changed = true;
+  }
+  if(changed){
+    render();
+    renderTodos();
+    flashSaved();
+  }
+}
+
+cloudSyncBtn.addEventListener('click', () => {
+  if(window.CloudSync && window.CloudSync.currentUser){
+    if(confirm('Sign out of cloud sync? Your data will remain saved on this device.')){
+      window.CloudSync.signOutUser();
+    }
+  } else {
+    window.CloudSync && window.CloudSync.signIn();
+  }
+});
+
+window.addEventListener('cloud-auth-changed', (e) => {
+  const user = e.detail.user;
+  if(user){
+    cloudSyncBtn.classList.add('signed-in');
+    cloudSyncBtn.title = `Synced as ${user.displayName || user.email} - click to sign out`;
+    cloudSyncLabel.textContent = 'Synced';
+    // First sign-in: push current local data up in case cloud doc doesn't exist yet.
+    pushToCloud();
+  } else {
+    cloudSyncBtn.classList.remove('signed-in');
+    cloudSyncBtn.title = 'Sign in to sync across devices';
+    cloudSyncLabel.textContent = 'Sync';
+  }
+});
+
+window.addEventListener('cloud-data', (e) => applyCloudData(e.detail));
+
+window.addEventListener('cloud-unconfigured', () => {
+  cloudSyncBtn.title = 'Cloud sync not set up yet';
+});
+
+// ---- Leaderboard ----
+const leaderboardListEl = document.getElementById('leaderboardList');
+const leaderboardSubEl = document.getElementById('leaderboardSub');
+
+function fmtHM(seconds){
+  const h = Math.floor(seconds/3600);
+  const m = Math.floor((seconds%3600)/60);
+  return `${h}h ${m}m`;
+}
+
+function renderLeaderboard(entries){
+  entries.sort((a,b) => (b.total||0) - (a.total||0));
+  leaderboardListEl.innerHTML = '';
+  if(entries.length === 0){
+    leaderboardListEl.innerHTML = `<div class="chat-empty">No one's logged study time yet.</div>`;
+    return;
+  }
+  const myUid = window.CloudSync && window.CloudSync.currentUser ? window.CloudSync.currentUser.uid : null;
+  entries.forEach((entry, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (entry.id === myUid ? ' lb-you' : '');
+    const avatar = entry.photoURL
+      ? `<img class="lb-avatar" src="${entry.photoURL}" alt="">`
+      : `<div class="lb-avatar"></div>`;
+    row.innerHTML = `
+      <span class="lb-rank">${i+1}</span>
+      ${avatar}
+      <div class="lb-info">
+        <div class="lb-name">${escapeHtml(entry.name || 'Anonymous')}${entry.id === myUid ? ' (you)' : ''}</div>
+        <div class="lb-breakdown">P ${fmtHM(entry.physics||0)} &middot; C ${fmtHM(entry.chemistry||0)} &middot; M ${fmtHM(entry.math||0)}</div>
+      </div>
+      <span class="lb-total">${fmtHM(entry.total||0)}</span>
+    `;
+    leaderboardListEl.appendChild(row);
+  });
+}
+
+// ---- Group Chat ----
+const chatMessagesEl = document.getElementById('chatMessages');
+const chatInputEl = document.getElementById('chatInput');
+const chatSendBtnEl = document.getElementById('chatSendBtn');
+
+function renderMessages(msgs){
+  const myUid = window.CloudSync && window.CloudSync.currentUser ? window.CloudSync.currentUser.uid : null;
+  const wasAtBottom = chatMessagesEl.scrollTop + chatMessagesEl.clientHeight >= chatMessagesEl.scrollHeight - 30;
+  chatMessagesEl.innerHTML = '';
+  if(msgs.length === 0){
+    chatMessagesEl.innerHTML = `<div class="chat-empty">No messages yet. Say hi!</div>`;
+    return;
+  }
+  msgs.forEach(m => {
+    const own = m.uid === myUid;
+    const el = document.createElement('div');
+    el.className = 'chat-msg' + (own ? ' own' : '');
+    const avatar = m.photoURL
+      ? `<img class="chat-msg-avatar" src="${m.photoURL}" alt="">`
+      : `<div class="chat-msg-avatar"></div>`;
+    el.innerHTML = `
+      ${avatar}
+      <div class="chat-msg-body">
+        <div class="chat-msg-name">${own ? 'You' : escapeHtml(m.name || 'Anonymous')}</div>
+        <span class="chat-msg-text">${escapeHtml(m.text || '')}</span>
+      </div>
+    `;
+    chatMessagesEl.appendChild(el);
+  });
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
+
+function sendChatMessage(){
+  const text = chatInputEl.value.trim();
+  if(!text || !window.CloudSync || !window.CloudSync.currentUser) return;
+  window.CloudSync.sendMessage(text);
+  chatInputEl.value = '';
+}
+
+chatSendBtnEl.addEventListener('click', sendChatMessage);
+chatInputEl.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') sendChatMessage();
+});
+
+// Enable/disable group features based on sign-in state
+window.addEventListener('cloud-auth-changed', (e) => {
+  const user = e.detail.user;
+  if(user){
+    leaderboardSubEl.textContent = "Live study hours across your group.";
+    chatSubEl_update(true);
+    chatInputEl.disabled = false;
+    chatSendBtnEl.disabled = false;
+    chatInputEl.placeholder = 'Type a message...';
+    window.CloudSync.subscribeLeaderboard(renderLeaderboard);
+    window.CloudSync.subscribeMessages(renderMessages);
+  } else {
+    leaderboardSubEl.textContent = "Sign in to see how your group is studying.";
+    chatSubEl_update(false);
+    chatInputEl.disabled = true;
+    chatSendBtnEl.disabled = true;
+    chatInputEl.placeholder = 'Sign in to send a message...';
+    leaderboardListEl.innerHTML = '';
+    chatMessagesEl.innerHTML = '';
+  }
+});
+
+function chatSubEl_update(signedIn){
+  const el = document.getElementById('chatSub');
+  el.textContent = signedIn ? "Chat with everyone in real time." : "Sign in to chat with your group.";
+}

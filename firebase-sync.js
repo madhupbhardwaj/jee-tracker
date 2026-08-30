@@ -31,16 +31,19 @@ window.CloudSync = {
       alert("Cloud sync isn't set up yet. Add your Firebase keys to firebase-config.js first.");
       return;
     }
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     try {
-      if (isMobile) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      await signInWithPopup(auth, provider);
     } catch (e) {
       console.error("Sign-in failed", e);
-      alert("Sign-in failed: " + e.message);
+      if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request") {
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch (e2) {
+          alert("Sign-in failed: " + e2.message);
+        }
+      } else {
+        alert("Sign-in failed: " + e.message);
+      }
     }
   },
 

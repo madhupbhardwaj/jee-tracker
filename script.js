@@ -245,7 +245,7 @@ function formatDateLabel(iso){
 function formatShortLabel(iso){
   const [y,m,d] = iso.split('-').map(Number);
   const dateObj = new Date(y, m-1, d);
-  if(iso === todayIso()) return 'Today';
+  if(iso === todayISO()) return 'Today';
   return dateObj.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
 }
 

@@ -4,10 +4,25 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, setDoc, onSnapshot,
-  collection, addDoc, query, orderBy, limit, serverTimestamp
+  collection, addDoc, query, orderBy, limit, serverTimestamp, deleteDoc, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const configured = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+
+// Only these emails are allowed to sign in. Edit this list to add/remove friends.
+// Must exactly match what you put in the Firestore rules allowlist too.
+const ALLOWED_EMAILS = [
+  "friend1@gmail.com",
+  "friend2@gmail.com",
+  "friend3@gmail.com",
+  "friend4@gmail.com",
+  "friend5@gmail.com",
+  "friend6@gmail.com",
+  "friend7@gmail.com",
+  "friend8@gmail.com",
+  "friend9@gmail.com",
+  "friend10@gmail.com"
+];
 
 let app, auth, db, provider;
 if (configured) {
@@ -112,11 +127,33 @@ window.CloudSync = {
     if (unsubscribeMessages) unsubscribeMessages();
     const q = query(collection(db, "groupMessages"), orderBy("localTime", "desc"), limit(100));
     unsubscribeMessages = onSnapshot(q, (snap) => {
+      const cutoff = Date.now() - 48 * 60 * 60 * 1000;
       const msgs = [];
-      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+      snap.forEach(d => {
+        const data = d.data();
+        if ((data.localTime || 0) >= cutoff) {
+          msgs.push({ id: d.id, ...data });
+        }
+      });
       msgs.reverse();
       callback(msgs);
     });
+    this.cleanupOldMessages();
+  },
+
+  // Best-effort: whoever has the app open deletes messages older than 48h.
+  async cleanupOldMessages() {
+    if (!configured || !this.currentUser) return;
+    try {
+      const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+      const q = query(collection(db, "groupMessages"), where("localTime", "<", cutoff));
+      const snap = await getDocs(q);
+      const deletions = [];
+      snap.forEach(d => deletions.push(deleteDoc(doc(db, "groupMessages", d.id))));
+      await Promise.all(deletions);
+    } catch (e) {
+      console.error("Chat cleanup failed", e);
+    }
   }
 };
 
@@ -126,6 +163,12 @@ if (configured) {
   });
 
   onAuthStateChanged(auth, (user) => {
+    if (user && !ALLOWED_EMAILS.includes(user.email)) {
+      signOut(auth);
+      window.dispatchEvent(new CustomEvent("cloud-not-allowed", { detail: { email: user.email } }));
+      return;
+    }
+
     window.CloudSync.currentUser = user;
     window.dispatchEvent(new CustomEvent("cloud-auth-changed", { detail: { user } }));
 

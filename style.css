@@ -138,20 +138,89 @@ button:active{transform:scale(0.97);}
 .todo-header{margin-bottom:12px;}
 .todo-header h2{font-size:17px; font-weight:600; letter-spacing:-0.01em;}
 
-.date-picker-row{display:flex; gap:8px; margin-bottom:14px;}
-.date-picker{
+.date-strip-wrap{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
+.date-strip{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  flex:1;
+  padding-bottom:2px;
+}
+.date-strip::-webkit-scrollbar{display:none;}
+.date-chip{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  width:52px;
+  padding:8px 4px;
+  border-radius:12px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+  font-family:inherit;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.date-chip:active{transform:scale(0.95);}
+.date-chip .dow{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em;}
+.date-chip .dom{font-size:16px; font-weight:700;}
+.date-chip.selected{
+  background:var(--text);
+  border-color:var(--text);
+}
+.date-chip.selected .dow{color:var(--bg); opacity:0.7;}
+.date-chip.selected .dom{color:var(--bg);}
+
+.custom-date-btn{
+  position:relative;
+  flex-shrink:0;
+  width:44px; height:44px;
+  border-radius:12px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.custom-date-btn svg{width:19px; height:19px; fill:var(--text);}
+.custom-date-btn input{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  cursor:pointer;
+  width:100%; height:100%;
+  border:none;
+}
+
+.add-task-row{display:flex; gap:8px; margin-bottom:10px; align-items:center;}
+.selected-date-label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:600;
+}
+.new-task-input{
   flex:1;
   border:1px solid var(--border);
   background:var(--card);
   color:var(--text);
   border-radius:10px;
-  padding:10px 12px;
+  padding:11px 14px;
   font-size:14px;
   font-family:inherit;
-  -webkit-appearance:none;
-  appearance:none;
 }
-.date-picker:focus{outline:none; border-color:var(--muted);}
+.new-task-input:focus{outline:none; border-color:var(--muted);}
+.new-task-input::placeholder{color:var(--muted);}
 .add-task-btn{
   -webkit-appearance:none;
   appearance:none;

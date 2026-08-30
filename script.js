@@ -187,12 +187,17 @@ initTheme();
 
 // ---- To-Do List ----
 const TODO_KEY = 'jee-tracker-todos';
-const datePicker = document.getElementById('datePicker');
+const dateStripEl = document.getElementById('dateStrip');
+const customDateInput = document.getElementById('customDateInput');
+const selectedDateLabel = document.getElementById('selectedDateLabel');
+const newTaskInput = document.getElementById('newTaskInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
 const todoDaysEl = document.getElementById('todoDays');
 
 // todos structure: { "YYYY-MM-DD": [ { id, text, done }, ... ], ... }
 let todos = {};
+let selectedDate = todayISO();
+let stripDates = [];
 
 function loadTodos(){
   try{
@@ -219,15 +224,71 @@ function todayISO(){
   return local.toISOString().slice(0,10);
 }
 
+function isoFromParts(y,m,d){
+  const mm = String(m).padStart(2,'0');
+  const dd = String(d).padStart(2,'0');
+  return `${y}-${mm}-${dd}`;
+}
+
 function formatDateLabel(iso){
   const [y,m,d] = iso.split('-').map(Number);
   const dateObj = new Date(y, m-1, d);
-  const today = new Date();
   const todayIso = todayISO();
   const opts = { weekday:'short', month:'short', day:'numeric' };
   let label = dateObj.toLocaleDateString(undefined, opts);
   if(iso === todayIso) label += ' - Today';
   return label;
+}
+
+function formatShortLabel(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dateObj = new Date(y, m-1, d);
+  if(iso === todayIso()) return 'Today';
+  return dateObj.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+}
+
+function buildDateStrip(){
+  // 3 days back, today, 10 days forward
+  const base = new Date();
+  const dates = [];
+  for(let i = -3; i <= 10; i++){
+    const d = new Date(base);
+    d.setDate(base.getDate() + i);
+    dates.push(isoFromParts(d.getFullYear(), d.getMonth()+1, d.getDate()));
+  }
+  stripDates = dates;
+  renderDateStrip();
+}
+
+function renderDateStrip(){
+  dateStripEl.innerHTML = '';
+  const todayIso = todayISO();
+  stripDates.forEach(iso => {
+    const [y,m,d] = iso.split('-').map(Number);
+    const dateObj = new Date(y, m-1, d);
+    const dow = dateObj.toLocaleDateString(undefined, { weekday:'short' });
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'date-chip' + (iso === selectedDate ? ' selected' : '');
+    chip.dataset.date = iso;
+    chip.innerHTML = `<span class="dow">${iso === todayIso ? 'Today' : dow}</span><span class="dom">${d}</span>`;
+    dateStripEl.appendChild(chip);
+  });
+  // auto-scroll selected chip into view
+  const sel = dateStripEl.querySelector('.date-chip.selected');
+  if(sel) sel.scrollIntoView({ inline:'center', block:'nearest' });
+}
+
+function selectDate(iso){
+  selectedDate = iso;
+  if(!stripDates.includes(iso)){
+    // rebuild strip centered loosely around chosen custom date by just adding it if outside range
+    if(!stripDates.includes(iso)){
+      stripDates = [...stripDates, iso].sort();
+    }
+  }
+  renderDateStrip();
+  selectedDateLabel.textContent = formatShortLabel(iso);
 }
 
 function addTask(dateIso, text){
@@ -266,7 +327,7 @@ function renderTodos(){
   todoDaysEl.innerHTML = '';
 
   if(dates.length === 0){
-    todoDaysEl.innerHTML = `<div class="todo-empty">No tasks yet. Pick a date above and tap + to add one.</div>`;
+    todoDaysEl.innerHTML = `<div class="todo-empty">No tasks yet. Pick a date above, type a task, and tap +.</div>`;
     return;
   }
 
@@ -306,15 +367,28 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
-addTaskBtn.addEventListener('click', () => {
-  const dateIso = datePicker.value;
-  if(!dateIso){
-    alert('Please pick a date first.');
-    return;
-  }
-  const text = prompt('Enter task:');
-  if(text && text.trim()){
-    addTask(dateIso, text.trim());
+function submitNewTask(){
+  const text = newTaskInput.value.trim();
+  if(!text) return;
+  addTask(selectedDate, text);
+  newTaskInput.value = '';
+  newTaskInput.focus();
+}
+
+addTaskBtn.addEventListener('click', submitNewTask);
+newTaskInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') submitNewTask();
+});
+
+dateStripEl.addEventListener('click', (e) => {
+  const chip = e.target.closest('.date-chip');
+  if(!chip) return;
+  selectDate(chip.dataset.date);
+});
+
+customDateInput.addEventListener('change', () => {
+  if(customDateInput.value){
+    selectDate(customDateInput.value);
   }
 });
 
@@ -326,6 +400,7 @@ todoDaysEl.addEventListener('click', (e) => {
   else if(action === 'delete') deleteTask(date, id);
 });
 
-datePicker.value = todayISO();
+buildDateStrip();
+selectedDateLabel.textContent = formatShortLabel(selectedDate);
 loadTodos();
 renderTodos();

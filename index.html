@@ -54,9 +54,20 @@
       <h2>To-Do List</h2>
     </div>
 
-    <div class="date-picker-row">
-      <input type="date" id="datePicker" class="date-picker">
-      <button id="addTaskBtn" class="add-task-btn" title="Add task to selected date">+</button>
+    <div class="date-strip-wrap">
+      <div id="dateStrip" class="date-strip"></div>
+      <label class="custom-date-btn" title="Pick another date">
+        <svg viewBox="0 0 24 24"><path d="M7 2a1 1 0 011 1v1h8V3a1 1 0 112 0v1h1a2 2 0 012 2v13a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm13 8H4v10h16V10zM6 6H5v2h14V6h-1v.5a1 1 0 11-2 0V6H8v.5a1 1 0 11-2 0V6z"/></svg>
+        <input type="date" id="customDateInput">
+      </label>
+    </div>
+
+    <div class="add-task-row">
+      <span class="selected-date-label" id="selectedDateLabel">Today</span>
+    </div>
+    <div class="add-task-row">
+      <input type="text" id="newTaskInput" class="new-task-input" placeholder="Add a task..." maxlength="200">
+      <button id="addTaskBtn" class="add-task-btn" title="Add task">+</button>
     </div>
 
     <div id="todoDays" class="todo-days"></div>

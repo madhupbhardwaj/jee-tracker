@@ -9,21 +9,6 @@ import {
 
 const configured = window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
 
-// Only these emails are allowed to sign in. Edit this list to add/remove friends.
-// Must exactly match what you put in the Firestore rules allowlist too.
-const ALLOWED_EMAILS = [
-  "friend1@gmail.com",
-  "friend2@gmail.com",
-  "friend3@gmail.com",
-  "friend4@gmail.com",
-  "friend5@gmail.com",
-  "friend6@gmail.com",
-  "friend7@gmail.com",
-  "friend8@gmail.com",
-  "friend9@gmail.com",
-  "friend10@gmail.com"
-];
-
 let app, auth, db, provider;
 if (configured) {
   app = initializeApp(window.FIREBASE_CONFIG);
@@ -163,12 +148,6 @@ if (configured) {
   });
 
   onAuthStateChanged(auth, (user) => {
-    if (user && !ALLOWED_EMAILS.includes(user.email)) {
-      signOut(auth);
-      window.dispatchEvent(new CustomEvent("cloud-not-allowed", { detail: { email: user.email } }));
-      return;
-    }
-
     window.CloudSync.currentUser = user;
     window.dispatchEvent(new CustomEvent("cloud-auth-changed", { detail: { user } }));
 

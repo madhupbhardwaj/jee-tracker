@@ -218,15 +218,15 @@ button:active{transform:scale(0.97);}
   color:var(--text);
   display:flex; align-items:center; justify-content:center;
   cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
 }
-.custom-date-btn svg{width:19px; height:19px; fill:var(--text);}
-.custom-date-btn input{
+.custom-date-btn svg{width:19px; height:19px; fill:var(--text); pointer-events:none;}
+.custom-date-input-hidden{
   position:absolute;
-  inset:0;
+  width:1px; height:1px;
   opacity:0;
-  cursor:pointer;
-  width:100%; height:100%;
-  border:none;
+  pointer-events:none;
 }
 
 .add-task-row{display:flex; gap:8px; margin-bottom:10px; align-items:center;}

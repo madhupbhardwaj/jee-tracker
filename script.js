@@ -1,5 +1,5 @@
 // Your Google sign-in email. This account can delete any message in Group Chat.
-const ADMIN_EMAIL = "geekycoder2010@gmail.com";
+const ADMIN_EMAIL = "YOUR_EMAIL@gmail.com";
 
 const SUBJECTS = [
   { id: 'physics', name: 'Physics' },
@@ -414,17 +414,47 @@ renderTodos();
 const cloudSyncBtn = document.getElementById('cloudSyncBtn');
 const cloudSyncLabel = document.getElementById('cloudSyncLabel');
 
+const DAILY_BASELINE_KEY = 'jee-tracker-daily-baseline';
+
+function getDailyBaseline(){
+  const today = todayISO();
+  let baseline;
+  try{
+    baseline = JSON.parse(localStorage.getItem(DAILY_BASELINE_KEY) || 'null');
+  }catch(e){
+    baseline = null;
+  }
+  if(!baseline || baseline.date !== today){
+    baseline = {
+      date: today,
+      physics: currentSeconds(SUBJECTS[0]),
+      chemistry: currentSeconds(SUBJECTS[1]),
+      math: currentSeconds(SUBJECTS[2])
+    };
+    localStorage.setItem(DAILY_BASELINE_KEY, JSON.stringify(baseline));
+  }
+  return baseline;
+}
+
 let pushTimeout = null;
 function pushToCloud(){
   if(!window.CloudSync || !window.CloudSync.currentUser) return;
   clearTimeout(pushTimeout);
   pushTimeout = setTimeout(() => {
     window.CloudSync.saveData({ timers: state, todos: todos });
-    window.CloudSync.saveLeaderboardEntry({
+
+    const baseline = getDailyBaseline();
+    const allTime = {
       physics: currentSeconds(SUBJECTS[0]),
       chemistry: currentSeconds(SUBJECTS[1]),
       math: currentSeconds(SUBJECTS[2])
-    });
+    };
+    const today = {
+      physics: Math.max(0, allTime.physics - baseline.physics),
+      chemistry: Math.max(0, allTime.chemistry - baseline.chemistry),
+      math: Math.max(0, allTime.math - baseline.math)
+    };
+    window.CloudSync.saveLeaderboardEntry(today, allTime);
   }, 600);
 }
 
@@ -516,6 +546,7 @@ function renderLeaderboard(entries){
       <div class="lb-info">
         <div class="lb-name">${escapeHtml(entry.name || 'Anonymous')}${entry.id === myUid ? ' (you)' : ''}</div>
         <div class="lb-breakdown">P ${fmtHM(entry.physics||0)} &middot; C ${fmtHM(entry.chemistry||0)} &middot; M ${fmtHM(entry.math||0)}</div>
+        <div class="lb-alltime">All-time: ${fmtHM(entry.allTimeTotal||0)}</div>
       </div>
       <span class="lb-total">${fmtHM(entry.total||0)}</span>
     `;
@@ -607,7 +638,7 @@ chatMessagesEl.addEventListener('click', (e) => {
 window.addEventListener('cloud-auth-changed', (e) => {
   const user = e.detail.user;
   if(user){
-    leaderboardSubEl.textContent = "Live study hours across your group.";
+    leaderboardSubEl.textContent = "Today's study hours, resets at midnight.";
     chatSubEl_update(true);
     chatInputEl.disabled = false;
     chatSendBtnEl.disabled = false;

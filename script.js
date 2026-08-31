@@ -1,5 +1,5 @@
 // Your Google sign-in email. This account can delete any message in Group Chat.
-const ADMIN_EMAIL = "YOUR_EMAIL@gmail.com";
+const ADMIN_EMAIL = "geekycoder2010@gmail.com";
 
 const SUBJECTS = [
   { id: 'physics', name: 'Physics' },

@@ -1,5 +1,5 @@
 // Your Google sign-in email. This account can delete any message in Group Chat.
-const ADMIN_EMAIL = "geekycoder2010@gmail.com";
+const ADMIN_EMAIL = "YOUR_EMAIL@gmail.com";
 
 const SUBJECTS = [
   { id: 'physics', name: 'Physics' },
@@ -193,6 +193,7 @@ initTheme();
 const TODO_KEY = 'jee-tracker-todos';
 const dateStripEl = document.getElementById('dateStrip');
 const customDateInput = document.getElementById('customDateInput');
+const customDateBtn = document.getElementById('customDateBtn');
 const selectedDateLabel = document.getElementById('selectedDateLabel');
 const newTaskInput = document.getElementById('newTaskInput');
 const addTaskBtn = document.getElementById('addTaskBtn');
@@ -389,6 +390,15 @@ dateStripEl.addEventListener('click', (e) => {
   const chip = e.target.closest('.date-chip');
   if(!chip) return;
   selectDate(chip.dataset.date);
+});
+
+customDateBtn.addEventListener('click', () => {
+  if(typeof customDateInput.showPicker === 'function'){
+    customDateInput.showPicker();
+  } else {
+    customDateInput.focus();
+    customDateInput.click();
+  }
 });
 
 customDateInput.addEventListener('change', () => {

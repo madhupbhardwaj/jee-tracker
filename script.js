@@ -1,5 +1,5 @@
 // Your Google sign-in email. This account can delete any message in Group Chat.
-const ADMIN_EMAIL = "YOUR_EMAIL@gmail.com";
+const ADMIN_EMAIL = "geekycoder2010@gmail.com";
 
 const SUBJECTS = [
   { id: 'physics', name: 'Physics' },
@@ -441,6 +441,22 @@ function getDailyBaseline(){
       chemistry: currentSeconds(SUBJECTS[1]),
       math: currentSeconds(SUBJECTS[2])
     };
+    localStorage.setItem(DAILY_BASELINE_KEY, JSON.stringify(baseline));
+    return baseline;
+  }
+
+  // If a subject's current time is below its baseline, a reset happened
+  // (on this device or another synced device). Rebase down so today's
+  // total doesn't stay stuck at 0.
+  let corrected = false;
+  SUBJECTS.forEach(sub => {
+    const current = currentSeconds(sub);
+    if(current < baseline[sub.id]){
+      baseline[sub.id] = current;
+      corrected = true;
+    }
+  });
+  if(corrected){
     localStorage.setItem(DAILY_BASELINE_KEY, JSON.stringify(baseline));
   }
   return baseline;

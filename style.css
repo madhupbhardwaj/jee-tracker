@@ -360,6 +360,7 @@ button:active{transform:scale(0.97);}
 .lb-info{flex:1; min-width:0;}
 .lb-name{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .lb-breakdown{font-size:11px; color:var(--muted); margin-top:2px;}
+.lb-alltime{font-size:10.5px; color:var(--muted); margin-top:1px; opacity:0.75;}
 .lb-total{font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; flex-shrink:0;}
 .lb-you{border-color:var(--text);}
 

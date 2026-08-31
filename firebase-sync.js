@@ -67,16 +67,20 @@ window.CloudSync = {
   },
 
   // Public: study totals only, visible to every signed-in friend.
-  async saveLeaderboardEntry(totals) {
+  async saveLeaderboardEntry(today, allTime) {
     if (!configured || !this.currentUser) return;
     try {
       await setDoc(doc(db, "leaderboard", this.currentUser.uid), {
         name: this.currentUser.displayName || "Anonymous",
         photoURL: this.currentUser.photoURL || null,
-        physics: totals.physics || 0,
-        chemistry: totals.chemistry || 0,
-        math: totals.math || 0,
-        total: (totals.physics || 0) + (totals.chemistry || 0) + (totals.math || 0),
+        physics: today.physics || 0,
+        chemistry: today.chemistry || 0,
+        math: today.math || 0,
+        total: (today.physics || 0) + (today.chemistry || 0) + (today.math || 0),
+        allTimePhysics: allTime.physics || 0,
+        allTimeChemistry: allTime.chemistry || 0,
+        allTimeMath: allTime.math || 0,
+        allTimeTotal: (allTime.physics || 0) + (allTime.chemistry || 0) + (allTime.math || 0),
         updatedAt: Date.now()
       }, { merge: true });
     } catch (e) {

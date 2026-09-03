@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Help - JEE Study Tracker</title>
+<link rel="stylesheet" href="style.css">
+<script>
+  (function(){
+    var saved = localStorage.getItem('jee-tracker-theme');
+    var theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+<style>
+  .help-wrap{max-width:640px; margin:0 auto; padding:32px 16px 60px;}
+  .help-back{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; color:var(--muted);
+    text-decoration:none;
+    margin-bottom:20px;
+  }
+  .help-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .help-card h2{font-size:15px; font-weight:700; margin-bottom:8px;}
+  .help-card p{font-size:13.5px; color:var(--muted); line-height:1.6; margin-bottom:8px;}
+  .help-card p:last-child{margin-bottom:0;}
+  .help-card strong{color:var(--text);}
+</style>
+</head>
+<body>
+<div class="help-wrap">
+  <a href="index.html" class="help-back">&larr; Back to tracker</a>
+  <header style="margin-bottom:24px;">
+    <h1 style="font-size:22px; font-weight:600; letter-spacing:-0.01em;">Help &amp; FAQ</h1>
+    <div class="sub">How the different parts of the tracker work.</div>
+  </header>
+
+  <div class="help-card">
+    <h2>Timers</h2>
+    <p>Only one subject timer runs at a time on a single device &mdash; starting a new one automatically pauses the previous one. This is to keep your logged time accurate.</p>
+    <p>Timers save automatically to your browser, and to the cloud too if you're signed in with <strong>Sync</strong>.</p>
+  </div>
+
+  <div class="help-card">
+    <h2>To-Do List</h2>
+    <p>Tasks are tied to a specific date. Tap a date chip (or the calendar icon for any other date), type a task, and hit +.</p>
+    <p>Your to-do list is private &mdash; no one else in the group can see it, even signed in.</p>
+  </div>
+
+  <div class="help-card">
+    <h2>Leaderboard</h2>
+    <p><strong>Shows today's study hours</strong> and resets automatically at midnight, based on your device's local time.</p>
+    <p><strong>All-time</strong> is shown as a smaller line under your name &mdash; this never resets, and keeps growing across every day you've used the tracker.</p>
+    <p><strong>Why does "today" sometimes show 0 even though I've studied?</strong> The very first time you sync after a leaderboard update goes live, or after any long gap without opening the app, the app sets a fresh "starting point" using whatever time you'd already accumulated. Only time studied <em>after</em> that starting point counts as "today." This only happens once &mdash; from then on it tracks correctly and resets cleanly every midnight.</p>
+    <p><strong>Resetting a subject's timer</strong> also resets that subject's contribution to today's leaderboard total, so it won't show a negative or stuck number.</p>
+  </div>
+
+  <div class="help-card">
+    <h2>Group Chat</h2>
+    <p>Messages are visible to everyone signed in, and show the date and time they were sent.</p>
+    <p>Messages are <strong>automatically deleted after 48 hours</strong> to keep the chat light &mdash; nothing is kept long-term.</p>
+  </div>
+
+  <div class="help-card">
+    <h2>Sync</h2>
+    <p>Tap the <strong>Sync</strong> button and sign in with Google to back up your timers and to-dos to the cloud, and to appear on the group Leaderboard and Chat.</p>
+    <p>Signing in on a second device (like your phone) pulls your latest data automatically &mdash; no need to redo anything.</p>
+  </div>
+</div>
+</body>
+</html>
